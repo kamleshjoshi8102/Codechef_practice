@@ -1,0 +1,24 @@
+#include <iostream>
+#define lli long long int
+#include<bits/stdc++.h>
+using namespace std;
+ lli comb(int n,int k){
+ 	lli ans=1;
+ 	if(k>n-k){
+ 		k=n-k;
+	 }
+	 for(lli i=0;i<k;i++){
+	 
+	 	ans=ans*(n-i);
+	 	ans=ans/(i+1);
+	 }
+	 return ans;
+}
+int main(){
+	int t, n, k;
+	cin >> t;
+	while(t--){
+	    cin >> n >> k;
+	    cout << comb(n-1, k-1) << endl;;
+}
+}
