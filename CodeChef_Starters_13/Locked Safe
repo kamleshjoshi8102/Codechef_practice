@@ -1,0 +1,83 @@
+#include<bits/stdc++.h>
+
+    using namespace std;
+
+    typedef long long ll;
+    int const maxn = 1e6 + 5;
+    ll a[maxn];
+    ll ans = 0;
+    ll pref_or[maxn], suff_or[maxn];
+    ll pref_and[maxn], suff_and[maxn];
+    ll pref_max[maxn], suff_max[maxn];
+
+    void calc(int l, int m, int r) {
+        ll val_or = a[m], val_and = a[m], mx = a[m];
+
+        for (int i = m; i >= l; --i) {
+            val_or = (val_or|a[i]);
+            val_and = (val_and&a[i]);
+            mx = max(mx, a[i]);
+
+            suff_or[i] = val_or;
+            suff_and[i] = val_and;
+            suff_max[i] = mx;
+        }
+
+        val_or = a[m + 1], val_and = a[m + 1], mx = a[m + 1];
+        for (int i = m + 1; i <= r; ++i) {
+            val_or = (val_or|a[i]);
+            val_and = (val_and&a[i]);
+            mx = max(mx, a[i]);
+
+            pref_or[i] = val_or;
+            pref_and[i] = val_and;
+            pref_max[i] = mx;
+        }
+    }
+
+    void solve(int l, int r) {
+        if (l == r) {
+            if (a[l] == 0) {
+                ans++;
+            }
+            return;
+        }
+
+        int m = (r + l) / 2;
+        calc(l, m, r);
+
+        int ptr_l = m + 1, ptr_r = m + 1;
+        for (int L = m; L >= l; --L) {
+            while (ptr_r <= r && pref_max[ptr_r] <= suff_max[L]) ptr_r++;
+            while (ptr_l < ptr_r && ((suff_or[L]|pref_or[ptr_l])^(suff_and[L]&pref_and[ptr_l])) < suff_max[L]) ptr_l++;
+            while (ptr_l >= m + 2 && ((suff_or[L]|pref_or[ptr_l - 1])^(suff_and[L]&pref_and[ptr_l - 1])) >= suff_max[L]) ptr_l--;
+            ans += (ll)max(0, ptr_r - ptr_l);
+        }
+
+        ptr_r = m, ptr_l = m;
+        for (int R = m + 1; R <= r; ++R) {
+            while (ptr_r >= l && suff_max[ptr_r] < pref_max[R]) ptr_r--;
+            while (ptr_l > ptr_r && ((pref_or[R]|suff_or[ptr_l])^(pref_and[R]&suff_and[ptr_l])) < pref_max[R]) ptr_l--;
+            while (ptr_l < m && ((pref_or[R]|suff_or[ptr_l + 1])^(pref_and[R]&suff_and[ptr_l + 1])) >= pref_max[R]) ptr_l++;
+            ans += (ll)max(0, ptr_l - ptr_r);
+        }
+
+        solve(l, m);
+        solve(m + 1, r);
+    }
+
+   int main() {
+        ios_base::sync_with_stdio(0);
+        cin.tie(0);
+        cout.tie(0);
+        int n, t;
+        cin >> t;
+        while (t--) {
+            cin >> n;
+            for (int i = 1; i <= n; ++i) cin >> a[i];
+            ans = 0;
+            solve(1, n);
+            cout << ans << '\n';
+        }
+        return 0;
+    }
